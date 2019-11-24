@@ -1,0 +1,100 @@
+# A tibble: 36 x 4
+   Kabupaten_Kota   Total  RENDAH  TINGGI
+   <chr>            <dbl>   <dbl>   <dbl>
+ 1 CILACAP        1676089 314614. 615982.
+ 2 BANYUMAS       1605579 278901. 756167.
+ 3 PURBALINGGA     879880  93447. 445674.
+ 4 BANJARNEGARA    889921 262151. 285262.
+ 5 KEBUMEN        1176722  86014. 772694.
+ 6 PURWOREJO       705483  84981. 411422.
+ 7 WONOSOBO        769318  80794. 440938.
+ 8 MAGELANG       1221681 299352. 430050.
+ 9 BOYOLALI        951817 149886. 560121.
+10 KLATEN         1148994 158087. 592233.
+# ... with 26 more rows
+> data$Kabupaten_Kota
+ [1] "CILACAP"      "BANYUMAS"     "PURBALINGGA"  "BANJARNEGARA" "KEBUMEN"      "PURWOREJO"   
+ [7] "WONOSOBO"     "MAGELANG"     "BOYOLALI"     "KLATEN"       "SUKOHARJO"    "WONOGIRI"    
+[13] "KARANGANYAR"  "SRAGEN"       "GROBOGAN"     "BLORA"        "REMBANG"      "PATI"        
+[19] "KUDUS"        "JEPARA"       "DEMAK"        "SEMARANG"     "TEMANGGUNG"   "KENDAL"      
+[25] "BATANG"       "PEKALONGAN"   "PEMALANG"     "TEGAL"        "BREBES"       "MAGELANG"    
+[31] "SURAKARTA"    "SALATIGA"     "SEMARANG"     "PEKALONGAN"   "TEGAL"        "Jawa Tengah" 
+> hasil<-kmeans(data[,2,3],3)
+> hasil
+K-means clustering with 3 clusters of sizes 1, 13, 22
+
+Cluster means:
+        [,1]
+1 33264339.0
+2  1364240.2
+3   705873.5
+
+Clustering vector:
+ [1] 2 2 3 3 2 3 3 2 3 2 3 3 3 3 2 3 3 2 3 2 2 3 3 3 3 3 2 2 2 3 3 3 2 3 3 1
+
+Within cluster sum of squares by cluster:
+[1] 0.000000e+00 6.455628e+11 1.482818e+12
+ (between_SS / total_SS =  99.8 %)
+
+Available components:
+
+[1] "cluster"      "centers"      "totss"        "withinss"     "tot.withinss" "betweenss"   
+[7] "size"         "iter"         "ifault"      
+> hasil$cluster
+ [1] 2 2 3 3 2 3 3 2 3 2 3 3 3 3 2 3 3 2 3 2 2 3 3 3 3 3 2 2 2 3 3 3 2 3 3 1
+> hasil$centers
+        [,1]
+1 33264339.0
+2  1364240.2
+3   705873.5
+> hasil$size
+[1]  1 13 22
+> table(hasil$cluster, data$Kabupaten_Kota)
+   
+    BANJARNEGARA BANYUMAS BATANG BLORA BOYOLALI BREBES CILACAP DEMAK GROBOGAN Jawa Tengah JEPARA
+  1            0        0      0     0        0      0       0     0        0           1      0
+  2            0        1      0     0        0      1       1     1        1           0      1
+  3            1        0      1     1        1      0       0     0        0           0      0
+   
+    KARANGANYAR KEBUMEN KENDAL KLATEN KUDUS MAGELANG PATI PEKALONGAN PEMALANG PURBALINGGA PURWOREJO
+  1           0       0      0      0     0        0    0          0        0           0         0
+  2           0       1      0      1     0        1    1          0        1           0         0
+  3           1       0      1      0     1        1    0          2        0           1         1
+   
+    REMBANG SALATIGA SEMARANG SRAGEN SUKOHARJO SURAKARTA TEGAL TEMANGGUNG WONOGIRI WONOSOBO
+  1       0        0        0      0         0         0     0          0        0        0
+  2       0        0        1      0         0         0     1          0        0        0
+  3       1        1        1      1         1         1     1          1        1        1
+> hasil$cluster <- as.factor(hasil$cluster)
+> ggplot(data, aes(data$Kabupaten_Kota, data$RENDAH, data$TINGGI, color = hasil$cluster)) + geom_point()
+> dataSample <-data[,2,3]
+> hc <- hclust(dist(dataSample), method="ave")
+> hc
+
+Call:
+hclust(d = dist(dataSample), method = "ave")
+
+Cluster method   : average 
+Distance         : euclidean 
+Number of objects: 36 
+
+> plot(hc, hang = -1, labels=data$RENDAH)
+> d <- dist(dataSample, method="euclidian")
+> pamCluster <- pam(d, 3)
+> clusplot(as.matrix(d), pamCluster$cluster, color=T, shade=T, labels=3, lines=0) 
+> pamCluster
+Medoids:
+     ID   
+[1,] 27 27
+[2,] 13 13
+[3,] 36 36
+Clustering vector:
+ [1] 1 1 2 2 1 2 2 1 2 1 2 2 2 2 1 2 2 1 2 1 1 2 2 2 2 2 1 1 1 2 2 2 1 2 2 3
+Objective function:
+   build     swap 
+206894.9 182341.6 
+
+Available components:
+[1] "medoids"    "id.med"     "clustering" "objective"  "isolation"  "clusinfo"   "silinfo"   
+[8] "diss"       "call"      
+> 
